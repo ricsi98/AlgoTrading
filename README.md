@@ -6,6 +6,7 @@ The environment replays real stock data, where the agent can buy, hold and sell.
 
 ### Data source
 [Price volume data for all us stocks etfs](https://www.kaggle.com/borismarjanovic/price-volume-data-for-all-us-stocks-etfs/data)
+. Download data and update `DATA_PATH` variable ([StockData.py](../StockEnv)) to the path to the csv files.
 
 ### Observation
 Type: Box(1)
@@ -26,3 +27,22 @@ Code | Action | Possible Rewards
 ### Reward
 + -1: the agent tries to sell without buying / selling with negative profit
 + 1: the agent sells with profit
+
+## Models
+### Random Agent
+This agent is an example for how one can use the environment. It acts independently from the observations. The code for the agent:
+```python
+from StockEnv import StockEnv
+import numpy as np
+
+# Create environment
+env = StockEnv(data_filter=['aapl.us.txt', 'msft.us.txt'], max_length=100000)
+env.reset()
+
+done = False
+while not done:
+    env.render()
+    # sample random action
+    action = np.random.randint(0,3)
+    obs, reward, done = env.step(action)
+```
