@@ -10,19 +10,19 @@ The environment replays real stock data, where the agent can buy, hold and sell.
 ### Observation
 Type: Box(1)
 
-Num     Observation     Min     Max
-
-0       Close           0       inf
+Num | Observation | Min | Max
+---|---|---|---
+0 | Close Price of the stock | 0 | inf
 
 ### Actions
 Type: Discrete(3)
-Code | Action
---- | ---
-0 | hold
-1 | buy
-2 | sell
+
+Code | Action | Possible Rewards
+---|---|---
+0 | hold | 0
+1 | buy  | 0
+2 | sell | 1,-1
 
 ### Reward
--1: the agent tries to sell without buying / selling with negative profit
-
-1: the agent sells with profit
++ -1: the agent tries to sell without buying / selling with negative profit
++ 1: the agent sells with profit
