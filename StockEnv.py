@@ -34,11 +34,14 @@ class StockEnv(gym.Env):
         -1:     the agent tries to sell without buying / selling with negative profit
         1:      the agent sells with profit
     """
-    def __init__(self, data_filter=None, max_length=365):
+    def __init__(self, data_filter=None, max_length=100000, start_date=None, end_date=None):
         # name of stocks to use
         self.data_filter = data_filter
         # max episode length
         self.max_length = max_length
+        # date interval
+        self.start_date = start_date
+        self.end_date = end_date
         # stock data filenames
         f = []
         for (dirpath, dirnames, filenames) in walk(DATA_PATH):
@@ -52,9 +55,15 @@ class StockEnv(gym.Env):
         else:
             fname = self.fnames[np.random.randint(0, len(self.fnames))]
         csv = pd.read_csv(DATA_PATH + '/' + fname)
+        csv['Date'] = pd.to_datetime(csv['Date'])
+        # filter data
+        if self.start_date != None:
+            csv = csv.loc[csv['Date'] > self.start_date]
+        if self.end_date != None:
+            csv = csv.loc[csv['Date'] < self.end_date]
         seq = csv['Close'].to_numpy()
         self.seq = seq
-        self.dates = csv['Date']
+        self.dates = csv['Date'].to_numpy()
 
     def step(self, action):
         reward = 0
@@ -89,6 +98,7 @@ class StockEnv(gym.Env):
         self.done = False
 
     def render(self):
-        print('Date\t\tPrice\tNetWorth\tLastAction\tLastReward')
-        print('%s\t%.3f\t%.2f \t%s\t\t%d' % (self.dates[self.t], self.seq[self.t], self.m + self.s*self.seq[self.t],
-            ('hold', 'buy', 'sell')[self.last_action], self.last_reward))
+        if self.t == 0: print('Date,Price,NetWorth,Balance,Action,LastReward')
+        print('%s,%.1f,%.2f,%.2f,%s,%d' % (np.datetime_as_string(self.dates[self.t], unit='D'), 
+            self.seq[self.t], self.m + self.s*self.seq[self.t],
+            self.m, ('hold', 'buy', 'sell')[self.last_action], self.last_reward))
