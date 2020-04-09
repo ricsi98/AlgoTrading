@@ -50,7 +50,7 @@ class RandomAgent(Solver):
         return random.choice([0,1,2])
 ```
 ### Moving Average Agent
-The agent holds until the MA `window_size` and after enough samples it calculates the MA (`ma`) for that window. The agent buys/sells whenever the MA crosses the price. In other cases the agent holds.
+The agent holds until it has enough items in memory (`window_size` iterations). After enough samples it calculates the MA. The agent buys/sells whenever the MA crosses the price from below/above. In other cases the agent holds.
 
 ### Deep Q Network Agent
 This agent tries to learn patterns in the stock price movement. After many episodes it will be able to gain more and more profit (theoretically).
