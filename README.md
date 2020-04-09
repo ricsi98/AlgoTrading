@@ -1,5 +1,4 @@
-# AlgoTrading
-## StockEnv - OpenAI gym environment
+## Environment
 
 ### Description
 The environment replays real stock data, where the agent can buy, hold and sell. The goal is to realize profit.
@@ -27,7 +26,7 @@ Code | Action | Possible Rewards
 
 ### Reward
 + -1: the agent tries to sell without owning any stocks
-+ x: (p[sell] - p[last_buy]) / p[last_buy] after n buys and a sell (n >= 1)  
++ x: (p[sell] - p[last_buy]) / p[last_buy] after n buys and a sell (n >= 1)
 
 ## Solver
 You can implement your own trading strategy by inheriting from the `Solver` class. In this class you can interact with the environment by the following functions:
@@ -52,3 +51,21 @@ class RandomAgent(Solver):
 ```
 ### Moving Average Agent
 The agent holds until the MA `window_size` and after enough samples it calculates the MA (`ma`) for that window. The agent buys/sells whenever the MA crosses the price. In other cases the agent holds.
+
+### Deep Q Network Agent
+This agent tries to learn patterns in the stock price movement. After many episodes it will be able to gain more and more profit (theoretically).
+During training the model either acts greedyly or randomly.
+Let `epsilon` be the probability of the model acting randomly. Then `epsilon` is given by *max(epsilon_min, min(1, 1 - log((t + 1) / ADA_DIVISOR)))* at any timestep *t*. This is a decreasing function with *epsilon_min* minimum. The *ADA_DIVISOR* determines the "speed" of the decrease, higher *ADA_DIVISOR* results higher probability of random acts.
+After each episode the model *"rewinds"* the whole episode, and for each timestep it minimizes the difference between its prediction (*E(reward | state)*) and the real reward.
+An example script for training this agent:
+```python
+from StockEnv import StockEnv
+from Agents import DqnAgent
+import torch
+
+env = StockEnv(data_filter=['aapl.us.txt'])
+agent = DqnAgent(env=env, window_size=30, min_epsilon=0.05, ada_divisor=50).double()
+opt = torch.optim.Adam(agent.parameters(), lr=0.001)
+agent.optimizer = opt
+agent.run(100)
+```
