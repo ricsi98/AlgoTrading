@@ -14,6 +14,7 @@ Type: Box(1)
 Num | Observation | Min | Max
 ---|---|---|---
 0 | Close Price of the stock | 0 | inf
+1 | p[n+1] / p[n] | 0 | inf
 
 ### Actions
 Type: Discrete(3)
@@ -25,35 +26,11 @@ Code | Action | Possible Rewards
 2 | sell | 1,-1
 
 ### Reward
-+ -1: the agent tries to sell without buying / selling with negative profit
-+ 1: the agent sells with profit
++ -1: the agent tries to sell without owning any stocks
++ x: (p[sell] - p[last_buy]) / p[last_buy] after n buys and a sell (n >= 1)  
 
 ## Models
 ### Random Agent
 This agent is an example for how one can use the environment. It acts independently from the observations. The code for the agent:
-```python
-from StockEnv import StockEnv
-import numpy as np
-
-# Create environment
-env = StockEnv(data_filter=['aapl.us.txt', 'msft.us.txt'], max_length=100000)
-env.reset()
-
-done = False
-while not done:
-    env.render()
-    # sample random action
-    action = np.random.randint(0,3)
-    obs, reward, done = env.step(action)
-```
 ### Moving Average Agent
 The agent holds until the MA `window_size` and after enough samples it calculates the MA (`ma`) for that window. The model buys/sells whenever the MA crosses the price:
-```python
-if price[t-1] < ma and price[t] > ma:
-    # buy
-elif price[t-1] > ma and price[t] < ma:
-    # sell
-else:
-    hold
-```
-(Note: in my implementation I used a smaller window size for selling)
