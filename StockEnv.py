@@ -8,8 +8,8 @@ from os import walk
 
 # path to folder where the csv-s are located
 DATA_PATH = 'E:/stockdata/Stocks'
-# starting money
-START_MONEY = 10000
+# number of shares bought per buy action
+BUY_COUNT = 1
 
 class StockEnv(gym.Env):
     """
@@ -20,9 +20,10 @@ class StockEnv(gym.Env):
         https://www.kaggle.com/borismarjanovic/price-volume-data-for-all-us-stocks-etfs/data
 
     Observation:
-        Type: Box(1)
+        Type: Box(2)
         Num     Observation     Min     Max
         0       Close           0       inf
+        1       p[n+1] / p[n]   0       inf
 
     Actions:
         Type: Discrete(3)
@@ -32,8 +33,8 @@ class StockEnv(gym.Env):
         2           sell
 
     Reward:
-        -1:     the agent tries to sell without buying / selling with negative profit
-        profit: the agent sells with profit
+        -1:     the agent tries to sell without owning any stocks
+        x:      x = (price[sell] - price[last_buy]) / price[last_buy] after n buys and a sell (n >= 1)        
     """
     def __init__(self, data_filter=None, max_length=100000, start_date=None, end_date=None):
         # name of stocks to use
@@ -44,7 +45,6 @@ class StockEnv(gym.Env):
         self.start_date = start_date
         self.end_date = end_date
 
-        self.buys, self.sells, self.holds = [], [], []
         self.rewards = 0
         # stock data filenames
         f = []
@@ -79,49 +79,55 @@ class StockEnv(gym.Env):
     def step(self, action):
         reward = 0
         self.last_action = action
-        # buy
-        if action == 1:
-            n_available = int(self.m / self.seq[self.t])
-            self.s += n_available
-            self.m -= n_available * self.seq[self.t]
-            self.bp = self.seq[self.t]
-            self.buys.append(self.t)
-        # sell
-        if action == 2:
-            self.sells.append(self.t)
-            if self.s == 0:
-                reward = -1
-            else:                
-                self.m += self.s * self.seq[self.t]
-                self.s = 0
-                reward = self.s * self.seq[self.t]#1 if self.bp < self.seq[self.t] else -1 
+        
         if action == 0:
+            if self.s > 0:
+                pass#reward = (self.seq[self.t] - 1)
             self.holds.append(self.t)
-        self.t += 1
-        if self.t == self.max_length or self.t == self.seq.shape[0]-1:
-            self.done = True
+        elif action == 1:
+            self.s += 1
+            self.bp = self.prices[self.t]
+            self.out_money += self.prices[self.t]
+            self.buys.append(self.t)
+        elif action == 2:
+            if self.s < 1:
+                reward = -1
+            else:
+                reward = (self.prices[self.t] / self.bp - 1) * self.s * 10
+                self.in_money += self.prices[self.t] * self.s
+                self.s = 0
+            self.sells.append(self.t)
+        
         self.last_reward = reward
         self.rewards += reward
-        return np.array([self.seq[self.t]]), reward, self.done
+        self.t += 1
+        return (self.prices[self.t], self.seq[self.t]), reward, self.t >= len(self.prices)-1
+            
 
     def reset(self):
         self._read_data()
 
-        # current timestep, current money, currently owned shares, buying price
-        self.t, self.m, self.s, self.bp = 0, START_MONEY, 0, 0
+        # current timestep, currently owned shares, buying price
+        self.t, self.s, self.bp = 0, 0, 0
+        self.buys, self.sells, self.holds = [], [], []
         self.last_action, self.last_reward = 0, 0
+        self.out_money, self.in_money = 0, 0
         self.done = False
+        self.rewards = 0
+        return (self.prices[0], self.seq[0]), 0, False
 
     def render(self):
         if self.t == 0: print('Date,Price,NetWorth,Balance,Action,LastReward')
-        print('%s,%.1f,%.2f,%.2f,%s,%d' % (np.datetime_as_string(self.dates[self.t], unit='D'), 
-            self.seq[self.t], self.m + self.s*self.seq[self.t],
-            self.m, ('hold', 'buy', 'sell')[self.last_action], self.last_reward))
+        print('%s,%.1f,%s,%.3f' % (np.datetime_as_string(self.dates[self.t], unit='D'), 
+            self.seq[self.t], ('hold', 'buy', 'sell')[self.last_action], self.last_reward))
+
+    def _calc_roi(self):
+        return (self.in_money - self.out_money) / self.out_money
 
     def render_all(self):
         plt.plot(self.prices)
-        plt.plot(self.buys, self.prices[self.buys], 'go')
-        plt.plot(self.sells, self.prices[self.sells], 'ro')
-        plt.plot(self.holds, self.prices[self.holds], 'yo')
-        plt.title("roi: %.3f cum_rew: %.3f" % (float(self.m) / 10000.0, self.rewards))
+        plt.plot(self.buys, self.prices[self.buys], 'go', alpha=0.6)
+        plt.plot(self.sells, self.prices[self.sells], 'ro', alpha=0.6)
+        #plt.plot(self.holds, self.prices[self.holds], 'bo')
+        plt.title("cum_rew: %.3f roi %.3f" % (self.rewards, 1 + self._calc_roi()))
         plt.show()
