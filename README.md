@@ -38,7 +38,7 @@ At any time, you can access all the previous observations and actions from the `
 
 ## Agents
 ### Random Agent
-This agent is an example for how one can use the environment. It acts independently from the observations. The code for the agent:
+This agent is an example of how one can use the environment. It acts independently from the observations. The code for the agent:
 ```python
 import random
 
