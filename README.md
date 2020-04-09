@@ -30,10 +30,11 @@ Code | Action | Possible Rewards
 + x: (p[sell] - p[last_buy]) / p[last_buy] after n buys and a sell (n >= 1)  
 
 ## Solver
-You can implement your own trading strategy by inheriting from the ([Solver.py](../Solver.py)) class. In this class you can interact with the environment by the following functions:
+You can implement your own trading strategy by inheriting from the `Solver` class. In this class you can interact with the environment by the following functions:
 + `_sample_action` this function takes the latest observation as parameter and has to return an action {0, 1, 2}
 + `_before_episode` this function runs before each episode
 + `_after_episode` this function runs after each episode
+
 At any time, you can access all the previous observations and actions from the `memory` attribute. This list contains a (observation, action, reward, next_observation, done) tuple for every previous timesteps. (Note: this list is always one step behind, except in the _after_episode function. The most recent observation is passed by the `obs` parameter)
 
 ## Agents
