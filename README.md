@@ -56,7 +56,7 @@ The agent holds until the MA `window_size` and after enough samples it calculate
 This agent tries to learn patterns in the stock price movement. After many episodes it will be able to gain more and more profit (theoretically).
 During training the model either acts greedyly or randomly.
 Let `epsilon` be the probability of the model acting randomly. Then `epsilon` is given by *max(epsilon_min, min(1, 1 - log((t + 1) / ADA_DIVISOR)))* at any timestep *t*. This is a decreasing function with *epsilon_min* minimum. The *ADA_DIVISOR* determines the "speed" of the decrease, higher *ADA_DIVISOR* results higher probability of random acts at timestep *t*.
-After each episode the model *"rewinds"* the whole episode, and for each timestep it minimizes the difference between its prediction (*E(reward | state)*) and the real reward.
+After each episode the model *"rewinds"* the whole episode, and for each timestep it minimizes the difference between its prediction (*E(reward | state, action)*) and the real reward.
 An example script for training this agent:
 ```python
 from StockEnv import StockEnv
