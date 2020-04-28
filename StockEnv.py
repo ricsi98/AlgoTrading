@@ -62,9 +62,9 @@ class StockEnv(gym.Env):
         csv['Date'] = pd.to_datetime(csv['Date'])
         # filter data
         if self.start_date != None:
-            csv = csv.loc[csv['Date'] > self.start_date]
+            csv = csv.loc[csv['Date'] > np.datetime64(self.start_date)]
         if self.end_date != None:
-            csv = csv.loc[csv['Date'] < self.end_date]
+            csv = csv.loc[csv['Date'] < np.datetime64(self.end_date)]
         self.prices = csv['Close'].to_numpy().copy()
         seq = csv['Close'].to_numpy()
         self.seq = self._process(seq)
@@ -129,5 +129,5 @@ class StockEnv(gym.Env):
         plt.plot(self.buys, self.prices[self.buys], 'go', alpha=0.6)
         plt.plot(self.sells, self.prices[self.sells], 'ro', alpha=0.6)
         #plt.plot(self.holds, self.prices[self.holds], 'bo')
-        plt.title("cum_rew: %.3f roi %.3f" % (self.rewards, 1 + self._calc_roi()))
+        plt.title("cumulative reward: %.3f roi %.3f" % (self.rewards, 1 + self._calc_roi()))
         plt.show()
