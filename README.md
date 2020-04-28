@@ -38,7 +38,7 @@ At any time, you can access all the previous observations and actions from the `
 
 ## Agents
 ### Random Agent
-This agent is an example for how one can use the environment. It acts independently from the observations. The code for the agent:
+This agent is an example of how one can use the environment. It acts independently from the observations. The code for the agent:
 ```python
 import random
 
@@ -50,13 +50,13 @@ class RandomAgent(Solver):
         return random.choice([0,1,2])
 ```
 ### Moving Average Agent
-The agent holds until the MA `window_size` and after enough samples it calculates the MA (`ma`) for that window. The agent buys/sells whenever the MA crosses the price. In other cases the agent holds.
+The agent holds until it has enough items in memory (`window_size` iterations). After enough samples it calculates the MA. The agent buys/sells whenever the MA crosses the price from below/above. In other cases the agent holds.
 
 ### Deep Q Network Agent
 This agent tries to learn patterns in the stock price movement. After many episodes it will be able to gain more and more profit (theoretically).
 During training the model either acts greedyly or randomly.
-Let `epsilon` be the probability of the model acting randomly. Then `epsilon` is given by *max(epsilon_min, min(1, 1 - log((t + 1) / ADA_DIVISOR)))* at any timestep *t*. This is a decreasing function with *epsilon_min* minimum. The *ADA_DIVISOR* determines the "speed" of the decrease, higher *ADA_DIVISOR* results higher probability of random acts.
-After each episode the model *"rewinds"* the whole episode, and for each timestep it minimizes the difference between its prediction (*E(reward | state)*) and the real reward.
+Let `epsilon` be the probability of the model acting randomly. Then `epsilon` is given by *max(epsilon_min, min(1, 1 - log((t + 1) / ADA_DIVISOR)))* at any timestep *t*. This is a decreasing function with *epsilon_min* minimum. The *ADA_DIVISOR* determines the "speed" of the decrease, higher *ADA_DIVISOR* results higher probability of random acts at timestep *t*.
+After each episode the model *"rewinds"* the whole episode, and for each timestep it minimizes the difference between its prediction *E(reward | state, action)* and the actual reward.
 An example script for training this agent:
 ```python
 from StockEnv import StockEnv
