@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 from os import walk
 
 # path to folder where the csv-s are located
-DATA_PATH = 'E:/stockdata/Stocks'
+DATA_PATH = '/media/ricsi98/HDD2/stockdata/'
 # number of shares bought per buy action
 BUY_COUNT = 1
 

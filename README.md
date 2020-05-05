@@ -52,6 +52,10 @@ class RandomAgent(Solver):
 ### Moving Average Agent
 The agent holds until it has enough items in memory (`window_size` iterations). After enough samples it calculates the MA. The agent buys/sells whenever the MA crosses the price from below/above. In other cases the agent holds.
 
+Agent performance on appl.us:
+![image](https://github.com/ricsi98/AlgoTrading/blob/master/images/example_plot.png "")
+
+
 ### Deep Q Network Agent
 This agent tries to learn patterns in the stock price movement. After many episodes it will be able to gain more and more profit (theoretically).
 During training the model either acts greedyly or randomly.

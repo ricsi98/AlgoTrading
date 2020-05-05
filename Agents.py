@@ -54,7 +54,7 @@ class DqnAgent(nn.Module, Solver):
         ## DQN
         self.lstm = nn.LSTM(input_size=1, hidden_size=self.hidden_size, num_layers=1)
         self.linear = nn.Linear(self.hidden_size, 3)
-        self.optimizer = None
+        self.optimizer = torch.optim.SGD(self.parameters(), 0.001, 0.01)
 
     def remember(self, obs, action, reward, obs_, done):
         self.memory.append((obs, action, reward, obs_, done))
@@ -117,6 +117,6 @@ class DqnAgent(nn.Module, Solver):
 
     def _after_episode(self):
         if self.render:
-            print('Learning...')
+            print('Updating weights...')
         self.learn(self.optimizer)
         self.hidden = None
