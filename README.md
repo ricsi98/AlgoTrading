@@ -54,7 +54,9 @@ The agent holds until it has enough items in memory (`window_size` iterations). 
 
 Agent performance on appl.us with `window_siz` = 50:
 
-![image](https://github.com/ricsi98/AlgoTrading/blob/master/images/aapl_MA_50.png "")
+<p align="center">
+    <img src="https://github.com/ricsi98/AlgoTrading/blob/master/images/aapl_MA_50.png"/>    
+</p>
 
 
 ### Deep Q Network Agent
